@@ -1,0 +1,1920 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>학기말 살리기: 대학생 AI 시험 공부 플래너</title>
+  <!-- Google Fonts: Inter & Outfit & Pretendard CDN -->
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- Canvas Confetti CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <style>
+    /* CSS Variables & Design System */
+    :root {
+      --font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+      --font-heading: 'Outfit', var(--font-family);
+
+      /* Dark Theme (Default) */
+      --bg-gradient: linear-gradient(135deg, #090d16 0%, #111827 100%);
+      --bg-color: #0f172a;
+      --card-bg: rgba(30, 41, 59, 0.7);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --primary-light: rgba(59, 130, 246, 0.15);
+      
+      --accent-green: #10b981;
+      --accent-green-bg: rgba(16, 185, 129, 0.15);
+      --accent-orange: #f59e0b;
+      --accent-orange-bg: rgba(245, 158, 11, 0.15);
+      --accent-red: #ef4444;
+      --accent-red-bg: rgba(239, 68, 68, 0.15);
+      
+      --shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+      --blur: blur(16px);
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    [data-theme="light"] {
+      /* Light Theme */
+      --bg-gradient: linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 100%);
+      --bg-color: #f1f5f9;
+      --card-bg: rgba(255, 255, 255, 0.85);
+      --card-border: rgba(0, 0, 0, 0.06);
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-light: rgba(37, 99, 235, 0.1);
+      
+      --accent-green: #059669;
+      --accent-green-bg: rgba(5, 150, 105, 0.1);
+      --accent-orange: #d97706;
+      --accent-orange-bg: rgba(217, 119, 6, 0.1);
+      --accent-red: #dc2626;
+      --accent-red-bg: rgba(220, 38, 38, 0.1);
+      
+      --shadow: 0 10px 30px -10px rgba(31, 38, 135, 0.08);
+    }
+
+    /* Reset & Base Styles */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-family);
+      background: var(--bg-gradient);
+      background-attachment: fixed;
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.6;
+      transition: background 0.3s ease;
+    }
+
+    /* Scrollbars */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.3);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(148, 163, 184, 0.5);
+    }
+
+    /* Typography helper */
+    h1, h2, h3, h4, .font-heading {
+      font-family: var(--font-heading);
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+
+    .app-header {
+      padding: 1.5rem 2rem;
+      border-bottom: 1px solid var(--card-border);
+      backdrop-filter: var(--blur);
+      background: rgba(15, 23, 42, 0.15);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .logo-icon {
+      background: linear-gradient(135deg, var(--primary) 0%, #8b5cf6 100%);
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+
+    .logo-text h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--primary) 0%, #a855f7 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .logo-text p {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .theme-toggle-btn {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      padding: 0.5rem;
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition);
+    }
+
+    .theme-toggle-btn:hover {
+      transform: translateY(-2px);
+      border-color: var(--primary);
+    }
+
+    /* Container & Layout */
+    .container {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+      width: 100%;
+      flex-grow: 1;
+    }
+
+    .grid-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      align-items: start;
+    }
+
+    @media (max-width: 968px) {
+      .grid-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Card styling */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      backdrop-filter: var(--blur);
+      border-radius: 20px;
+      padding: 1.75rem;
+      box-shadow: var(--shadow);
+      margin-bottom: 2rem;
+      transition: var(--transition);
+    }
+
+    .card:hover {
+      box-shadow: 0 12px 40px -10px rgba(0, 0, 0, 0.4);
+    }
+
+    .card-title {
+      font-size: 1.2rem;
+      margin-bottom: 1.25rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 0.75rem;
+    }
+
+    .card-title span {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* Forms */
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-main);
+    }
+
+    .form-input, .form-select {
+      width: 100%;
+      background: rgba(15, 23, 42, 0.3);
+      border: 1px solid var(--card-border);
+      padding: 0.75rem 1rem;
+      border-radius: 12px;
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 0.95rem;
+      outline: none;
+      transition: var(--transition);
+    }
+
+    .form-input:focus, .form-select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+      background: rgba(15, 23, 42, 0.5);
+    }
+
+    /* Radios styled as cards */
+    .radio-tiles {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+    }
+
+    .radio-tile-label {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0.75rem;
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: var(--transition);
+      background: rgba(15, 23, 42, 0.2);
+    }
+
+    .radio-tile-input {
+      display: none;
+    }
+
+    .radio-tile-input:checked + .radio-tile-label {
+      border-color: var(--primary);
+      background: var(--primary-light);
+      color: var(--primary);
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: var(--transition);
+      border: none;
+      outline: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
+      color: white;
+      box-shadow: 0 4px 14px rgba(59, 130, 246, 0.2);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+    }
+
+    .btn-secondary {
+      background: var(--primary-light);
+      color: var(--primary);
+      border: 1px solid rgba(59, 130, 246, 0.1);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(59, 130, 246, 0.25);
+    }
+
+    .btn-danger {
+      background: var(--accent-red-bg);
+      color: var(--accent-red);
+    }
+
+    .btn-danger:hover {
+      background: rgba(239, 68, 68, 0.25);
+    }
+
+    .btn-icon {
+      padding: 0.5rem;
+      border-radius: 8px;
+    }
+
+    /* Dashboard Widgets styling */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    @media (max-width: 600px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .dday-widget {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .dday-main {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--text-main);
+      line-height: 1.3;
+      margin-bottom: 0.5rem;
+    }
+
+    .dday-main-highlight {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--accent-orange) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .dday-list {
+      margin-top: 0.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      max-height: 100px;
+      overflow-y: auto;
+    }
+
+    .dday-tag {
+      font-size: 0.75rem;
+      font-weight: 500;
+      padding: 0.25rem 0.6rem;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .tag-danger { background: var(--accent-red-bg); color: var(--accent-red); }
+    .tag-warning { background: var(--accent-orange-bg); color: var(--accent-orange); }
+    .tag-success { background: var(--accent-green-bg); color: var(--accent-green); }
+
+    .progress-widget {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .circle-progress-container {
+      position: relative;
+      width: 100px;
+      height: 100px;
+      margin-bottom: 0.5rem;
+    }
+
+    .circle-svg {
+      transform: rotate(-90deg);
+      width: 100%;
+      height: 100%;
+    }
+
+    .circle-bg {
+      fill: none;
+      stroke: var(--card-border);
+      stroke-width: 8;
+    }
+
+    .circle-fill {
+      fill: none;
+      stroke: var(--primary);
+      stroke-width: 8;
+      stroke-linecap: round;
+      stroke-dasharray: 283;
+      stroke-dashoffset: 283;
+      transition: stroke-dashoffset 0.8s ease;
+    }
+
+    .circle-percentage {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 1.4rem;
+      font-weight: 700;
+      font-family: var(--font-heading);
+    }
+
+    /* Subject Cards Grid */
+    .subject-section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .subject-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    .subject-card {
+      background: rgba(30, 41, 59, 0.4);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 1.25rem;
+      position: relative;
+      overflow: hidden;
+      transition: var(--transition);
+    }
+
+    .subject-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(59, 130, 246, 0.3);
+      background: rgba(30, 41, 59, 0.6);
+    }
+
+    .subject-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 0.75rem;
+    }
+
+    .subject-info h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .subject-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.2rem 0.5rem;
+      border-radius: 6px;
+    }
+
+    .priority-badge {
+      background: rgba(139, 92, 246, 0.15);
+      color: #a78bfa;
+      cursor: help;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .subject-progress-area {
+      margin-top: 1rem;
+    }
+
+    .progress-bar-container {
+      background: rgba(15, 23, 42, 0.5);
+      height: 8px;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 0.5rem;
+    }
+
+    .progress-bar-fill {
+      background: linear-gradient(90deg, var(--primary) 0%, var(--accent-green) 100%);
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.5s ease;
+    }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .subject-slider-group {
+      margin-top: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .progress-slider {
+      flex-grow: 1;
+      height: 6px;
+      border-radius: 3px;
+      background: var(--card-border);
+      outline: none;
+      -webkit-appearance: none;
+    }
+
+    .progress-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--primary);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .progress-slider::-webkit-slider-thumb:hover {
+      transform: scale(1.3);
+      background: var(--primary-hover);
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    /* Tooltip */
+    .tooltip {
+      position: relative;
+    }
+
+    .tooltip-text {
+      visibility: hidden;
+      width: 200px;
+      background-color: #1e293b;
+      color: #f8fafc;
+      text-align: center;
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 0.5rem;
+      position: absolute;
+      z-index: 10;
+      bottom: 125%;
+      left: 50%;
+      transform: translateX(-50%);
+      opacity: 0;
+      transition: opacity 0.2s;
+      font-size: 0.75rem;
+      line-height: 1.4;
+      pointer-events: none;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+
+    .tooltip:hover .tooltip-text {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    /* Scheduler Side */
+    .slider-info {
+      display: flex;
+      justify-content: space-between;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      font-size: 0.95rem;
+    }
+
+    .time-selector-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .checkbox-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.9rem;
+      cursor: pointer;
+      color: var(--text-muted);
+      transition: var(--transition);
+    }
+
+    .checkbox-label:hover {
+      color: var(--text-main);
+    }
+
+    .checkbox-input {
+      width: 18px;
+      height: 18px;
+      border-radius: 6px;
+      border: 1px solid var(--card-border);
+      outline: none;
+      cursor: pointer;
+      accent-color: var(--primary);
+    }
+
+    /* Timeline schedule layout */
+    .timeline {
+      margin-top: 1.5rem;
+      border-left: 2px solid var(--card-border);
+      padding-left: 1.5rem;
+      position: relative;
+    }
+
+    .timeline-item {
+      position: relative;
+      margin-bottom: 1.5rem;
+    }
+
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -29px; /* center it on the line */
+      top: 4px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--card-border);
+      border: 2px solid var(--bg-color);
+      transition: var(--transition);
+      z-index: 2;
+    }
+
+    .timeline-item.study::before {
+      background: var(--primary);
+    }
+
+    .timeline-item.break::before {
+      background: var(--accent-green);
+    }
+
+    .timeline-item.meal::before {
+      background: var(--accent-orange);
+    }
+
+    .timeline-item.completed::before {
+      background: var(--accent-green);
+      box-shadow: 0 0 8px var(--accent-green);
+    }
+
+    .timeline-card {
+      background: rgba(30, 41, 59, 0.3);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      transition: var(--transition);
+    }
+
+    .timeline-card:hover {
+      border-color: rgba(255,255,255,0.15);
+      background: rgba(30, 41, 59, 0.45);
+    }
+
+    .timeline-card.completed {
+      opacity: 0.6;
+      background: rgba(16, 185, 129, 0.05);
+      border-color: rgba(16, 185, 129, 0.15);
+    }
+
+    .timeline-card.completed .timeline-subject {
+      text-decoration: line-through;
+      color: var(--text-muted);
+    }
+
+    .timeline-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .timeline-time {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      font-family: var(--font-heading);
+      margin-bottom: 0.15rem;
+    }
+
+    .timeline-subject {
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    .timeline-type-badge {
+      font-size: 0.7rem;
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      font-weight: 500;
+      margin-left: 0.5rem;
+    }
+
+    .timeline-type-study { background: var(--primary-light); color: var(--primary); }
+    .timeline-type-break { background: var(--accent-green-bg); color: var(--accent-green); }
+    .timeline-type-meal { background: var(--accent-orange-bg); color: var(--accent-orange); }
+
+    .schedule-check-btn {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 2px solid var(--card-border);
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: transparent;
+      transition: var(--transition);
+    }
+
+    .schedule-check-btn:hover {
+      border-color: var(--primary);
+    }
+
+    .schedule-check-btn.checked {
+      background: var(--accent-green);
+      border-color: var(--accent-green);
+      color: white;
+    }
+
+    /* Modal / Dialog styling */
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(15, 23, 42, 0.7);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: var(--transition);
+    }
+
+    .modal-backdrop.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-content {
+      background: #1e293b;
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      width: 90%;
+      max-width: 500px;
+      padding: 2rem;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+      transform: scale(0.9);
+      transition: var(--transition);
+    }
+
+    [data-theme="light"] .modal-content {
+      background: #ffffff;
+    }
+
+    .modal-backdrop.open .modal-content {
+      transform: scale(1);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .modal-close {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 1.5rem;
+      display: flex;
+    }
+
+    .modal-close:hover {
+      color: var(--text-main);
+    }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 2rem;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      border: 2px dashed var(--card-border);
+      border-radius: 16px;
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      backdrop-filter: var(--blur);
+      padding: 1rem 1.5rem;
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      z-index: 2000;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: var(--transition);
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .toast-icon {
+      color: var(--primary);
+    }
+
+    /* Footer styling */
+    footer {
+      text-align: center;
+      padding: 2rem;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      border-top: 1px solid var(--card-border);
+      margin-top: auto;
+    }
+
+    /* Confetti Button Accent Animation */
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.03); }
+      100% { transform: scale(1); }
+    }
+
+    .pulse-btn {
+      animation: pulse 2s infinite;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- App Header -->
+  <header class="app-header">
+    <div class="header-logo">
+      <div class="logo-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      </div>
+      <div class="logo-text">
+        <h1>AI Study Planner</h1>
+        <p>대학생 시험기간 공부 지원 시스템</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <span style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--font-heading);" id="header-date">2026.06.20</span>
+      <button class="theme-toggle-btn" id="theme-toggle" aria-label="테마 전환">
+        <svg id="sun-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+        <svg id="moon-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- App Body Container -->
+  <div class="container">
+    <div class="grid-layout">
+      
+      <!-- Left Panel: Dashboard & Subjects List -->
+      <section class="left-panel">
+        
+        <!-- Dashboard Card -->
+        <div class="card">
+          <div class="card-title">
+            <span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+              현황 대시보드
+            </span>
+          </div>
+
+          <div class="dashboard-grid">
+            <!-- D-Day Countdown -->
+            <div class="dday-widget">
+              <div class="dday-main" id="dday-hero">
+                시험 정보 없음
+              </div>
+              <div class="dday-list" id="dday-sublist">
+                <!-- Mini tags show here -->
+              </div>
+            </div>
+
+            <!-- Overall Progress Circle -->
+            <div class="progress-widget">
+              <div class="circle-progress-container">
+                <svg class="circle-svg">
+                  <circle class="circle-bg" cx="50" cy="50" r="45" />
+                  <circle class="circle-fill" id="circle-progress-fill" cx="50" cy="50" r="45" />
+                </svg>
+                <div class="circle-percentage" id="overall-percentage">0%</div>
+              </div>
+              <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-main);">전체 진도 완료율</span>
+              <span style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.15rem;" id="overall-stats">등록된 과목 없음</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Subject List Card -->
+        <div class="card">
+          <div class="subject-section-header">
+            <h2 class="card-title" style="margin-bottom: 0; border-bottom: none; padding-bottom: 0;">
+              <span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10M6 10h10"/></svg>
+                등록된 시험 과목
+              </span>
+            </h2>
+            <button class="btn btn-secondary btn-icon" id="open-add-modal-btn" aria-label="과목 추가">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5v14"/></svg>
+            </button>
+          </div>
+
+          <!-- Subjects Container -->
+          <div class="subject-grid" id="subjects-container">
+            <div class="empty-state">
+              등록된 시험 과목이 없습니다. 오른쪽 위의 '+' 버튼을 눌러 과목을 추가해 보세요!
+            </div>
+          </div>
+        </div>
+        
+      </section>
+
+      <!-- Right Panel: Schedule Planning -->
+      <section class="right-panel">
+        
+        <!-- Planner Setup Settings -->
+        <div class="card">
+          <div class="card-title">
+            <span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z"/><path d="M12 6v6l4 2"/></svg>
+              오늘 공부 세션 설정
+            </span>
+          </div>
+
+          <div class="form-group">
+            <div class="slider-info">
+              <span class="form-label" style="margin-bottom: 0;">하루 공부 가능 시간</span>
+              <span id="study-time-val" style="color: var(--primary); font-weight: 700; font-family: var(--font-heading);">6시간</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 1rem;">
+              <input type="range" id="daily-study-time-input" min="1" max="16" value="6" class="progress-slider">
+            </div>
+          </div>
+
+          <div class="time-selector-row">
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label" for="start-time-input">공부 시작 시간</label>
+              <input type="time" id="start-time-input" value="09:00" class="form-input">
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label" for="meal-exclusion-select">식사시간 제외</label>
+              <select id="meal-exclusion-select" class="form-select">
+                <option value="both" selected>점심 & 저녁 둘 다 제외</option>
+                <option value="lunch">점심만 제외 (12:00-13:00)</option>
+                <option value="dinner">저녁만 제외 (18:00-19:00)</option>
+                <option value="none">식사 시간 제외 안함</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="checkbox-group" style="margin-top: 1.25rem;">
+            <label class="checkbox-label">
+              <input type="checkbox" id="break-toggle-input" checked class="checkbox-input">
+              <span>집중 가이드 (50분 공부 후 10분 휴식 자동 포함)</span>
+            </label>
+          </div>
+
+          <button class="btn btn-primary pulse-btn" style="width: 100%;" id="generate-plan-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L15.45 5.54l3.01 3.01 3.18-3.18a1.21 1.21 0 0 0 0-1.73ZM14.04 6.95l-3.01-3.01L3 11.97v3.01h3.01l8.03-8.03Z"/><path d="m14 14-4 4"/></svg>
+            AI 맞춤 공부 계획 생성
+          </button>
+        </div>
+
+        <!-- Schedule Output -->
+        <div class="card">
+          <div class="card-title">
+            <span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10Z"/><path d="m9 12 2 2 4-4"/></svg>
+              오늘의 맞춤 타임라인
+            </span>
+            <span style="font-size: 0.8rem; font-weight: normal; color: var(--text-muted);" id="schedule-percentage-text">완료율 0%</span>
+          </div>
+
+          <!-- Timeline Container -->
+          <div id="schedule-container">
+            <div class="empty-state">
+              위의 버튼을 눌러 AI가 계산한 오늘의 최적 공부 스케줄을 확인하세요.
+            </div>
+          </div>
+        </div>
+
+      </section>
+    </div>
+  </div>
+
+  <!-- Add Subject Modal -->
+  <div class="modal-backdrop" id="add-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="font-heading" style="font-size: 1.25rem;">새 시험 과목 등록</h3>
+        <button class="modal-close" id="close-add-modal-btn" aria-label="닫기">&times;</button>
+      </div>
+
+      <form id="add-subject-form" onsubmit="event.preventDefault();">
+        <div class="form-group">
+          <label class="form-label" for="sub-name">과목명</label>
+          <input type="text" id="sub-name" class="form-input" placeholder="예: 정보사회론, 현대시론" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="sub-date">시험 날짜</label>
+          <input type="date" id="sub-date" class="form-input" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">중요도</label>
+          <div class="radio-tiles">
+            <div>
+              <input type="radio" name="sub-importance" id="imp-high" value="상" checked class="radio-tile-input">
+              <label for="imp-high" class="radio-tile-label">상</label>
+            </div>
+            <div>
+              <input type="radio" name="sub-importance" id="imp-mid" value="중" class="radio-tile-input">
+              <label for="imp-mid" class="radio-tile-label">중</label>
+            </div>
+            <div>
+              <input type="radio" name="sub-importance" id="imp-low" value="하" class="radio-tile-input">
+              <label for="imp-low" class="radio-tile-label">하</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="sub-hours">예상 필요 공부시간 (총 시간)</label>
+          <input type="number" id="sub-hours" class="form-input" min="1" max="100" value="10" required>
+        </div>
+
+        <div class="form-group">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+            <label class="form-label" style="margin-bottom: 0;">현재 진도율 (%)</label>
+            <span id="new-progress-val" style="font-weight: 600; color: var(--primary); font-family: var(--font-heading);">0%</span>
+          </div>
+          <input type="range" id="sub-progress" class="progress-slider" min="0" max="100" value="0">
+        </div>
+
+        <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 2rem;">
+          <button type="button" class="btn btn-secondary" id="cancel-add-btn">취소</button>
+          <button type="submit" class="btn btn-primary" id="save-subject-btn">등록하기</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toast-notify">
+    <svg class="toast-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+    <span id="toast-message">알림 메시지</span>
+  </div>
+
+  <footer>
+    <p>&copy; 2026 AI 시험 공부 플래너. 대학생 공부 집중 시스템.</p>
+  </footer>
+
+  <!-- Application logic JS -->
+  <script>
+    // State management
+    let state = {
+      subjects: [],
+      dailyTime: 6,
+      startTime: "09:00",
+      includeBreaks: true,
+      excludeMeals: "both",
+      todaySchedule: [],
+      theme: "dark"
+    };
+
+    // Date formatting helper
+    function getTodayString() {
+      const today = new Date();
+      return today.toISOString().split('T')[0];
+    }
+
+    // Helper: calculate D-Day
+    function calculateDDay(targetDateStr) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      const target = new Date(targetDateStr);
+      target.setHours(0, 0, 0, 0);
+      
+      const diffTime = target - today;
+      return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    }
+
+    // LocalStorage loading/saving
+    function saveState() {
+      localStorage.setItem('ai_study_planner_state', JSON.stringify(state));
+    }
+
+    function loadState() {
+      const stored = localStorage.getItem('ai_study_planner_state');
+      if (stored) {
+        try {
+          state = JSON.parse(stored);
+          document.getElementById('daily-study-time-input').value = state.dailyTime;
+          document.getElementById('study-time-val').innerText = `${state.dailyTime}시간`;
+          document.getElementById('start-time-input').value = state.startTime;
+          document.getElementById('meal-exclusion-select').value = state.excludeMeals || "both";
+          document.getElementById('break-toggle-input').checked = state.includeBreaks;
+          
+          if (state.theme) {
+            document.documentElement.setAttribute('data-theme', state.theme);
+            updateThemeToggleUI();
+          }
+        } catch (e) {
+          console.error("LocalStorage parsing error. Resetting to mock data.");
+          setupMockData();
+        }
+      } else {
+        setupMockData();
+      }
+    }
+
+    // Set relative mock data so it looks great on load
+    function setupMockData() {
+      const baseDate = new Date();
+      
+      const sub1 = new Date(baseDate);
+      sub1.setDate(baseDate.getDate() + 3); // D-3
+      
+      const sub2 = new Date(baseDate);
+      sub2.setDate(baseDate.getDate() + 5); // D-5
+      
+      const sub3 = new Date(baseDate);
+      sub3.setDate(baseDate.getDate() + 7); // D-7
+
+      state.subjects = [
+        {
+          id: 'mock-1',
+          name: '정보사회론',
+          examDate: sub1.toISOString().split('T')[0],
+          importance: '상',
+          expectedHours: 12,
+          progress: 20
+        },
+        {
+          id: 'mock-2',
+          name: '현대시론',
+          examDate: sub2.toISOString().split('T')[0],
+          importance: '중',
+          expectedHours: 8,
+          progress: 45
+        },
+        {
+          id: 'mock-3',
+          name: '스페인어',
+          examDate: sub3.toISOString().split('T')[0],
+          importance: '하',
+          expectedHours: 16,
+          progress: 10
+        }
+      ];
+      state.dailyTime = 6;
+      state.startTime = "09:00";
+      state.includeBreaks = true;
+      state.excludeMeals = "both";
+      state.theme = "dark";
+      state.todaySchedule = [];
+      saveState();
+    }
+
+    // Toast Notification helper
+    function showToast(msg) {
+      const toast = document.getElementById('toast-notify');
+      document.getElementById('toast-message').innerText = msg;
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2500);
+    }
+
+    // Theme toggle UI
+    function updateThemeToggleUI() {
+      const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+      document.getElementById('sun-icon').style.display = isLight ? 'none' : 'block';
+      document.getElementById('moon-icon').style.display = isLight ? 'block' : 'none';
+    }
+
+    // Dashboard rendering
+    function renderDashboard() {
+      if (state.subjects.length === 0) {
+        document.getElementById('dday-hero').innerHTML = '시험 정보 없음';
+        document.getElementById('dday-sublist').innerHTML = '';
+        document.getElementById('overall-percentage').innerText = '0%';
+        document.getElementById('overall-stats').innerText = '등록된 과목 없음';
+        document.getElementById('circle-progress-fill').style.strokeDashoffset = 283;
+        return;
+      }
+
+      const subjectsWithDDay = state.subjects.map(s => {
+        return { ...s, dDay: calculateDDay(s.examDate) };
+      });
+
+      const upcoming = subjectsWithDDay.filter(s => s.dDay >= 0);
+      
+      if (upcoming.length > 0) {
+        upcoming.sort((a, b) => a.dDay - b.dDay);
+        const closest = upcoming[0];
+        let ddayStr = closest.dDay === 0 ? "D-Day" : `D-${closest.dDay}`;
+        document.getElementById('dday-hero').innerHTML = `
+          가장 가까운 시험: <br><span class="dday-main-highlight">${closest.name}</span> (${ddayStr})
+        `;
+      } else {
+        document.getElementById('dday-hero').innerHTML = `진행 예정인 시험이 없습니다.`;
+      }
+
+      subjectsWithDDay.sort((a, b) => a.dDay - b.dDay);
+      let sublistHTML = '';
+      subjectsWithDDay.forEach(s => {
+        let tagClass = 'tag-success';
+        let dDayText = s.dDay > 0 ? `D-${s.dDay}` : (s.dDay === 0 ? 'D-Day' : '종료');
+        
+        if (s.dDay < 0) {
+          tagClass = 'tag-success';
+        } else if (s.dDay <= 2) {
+          tagClass = 'tag-danger';
+        } else if (s.dDay <= 5) {
+          tagClass = 'tag-warning';
+        } else {
+          tagClass = 'tag-success';
+        }
+        
+        sublistHTML += `
+          <span class="dday-tag ${tagClass}">
+            ${s.name} ${dDayText}
+          </span>
+        `;
+      });
+      document.getElementById('dday-sublist').innerHTML = sublistHTML;
+
+      const totalProgress = state.subjects.reduce((sum, s) => sum + s.progress, 0);
+      const avgProgress = Math.round(totalProgress / state.subjects.length);
+      
+      document.getElementById('overall-percentage').innerText = `${avgProgress}%`;
+      document.getElementById('overall-stats').innerText = `${state.subjects.length}개 과목 전체 진도 상태`;
+      
+      const offset = 283 - (283 * avgProgress) / 100;
+      document.getElementById('circle-progress-fill').style.strokeDashoffset = offset;
+    }
+
+    // Subjects list rendering
+    function renderSubjects() {
+      const container = document.getElementById('subjects-container');
+      
+      if (state.subjects.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            등록된 시험 과목이 없습니다. 위의 '+' 버튼을 눌러 과목을 추가해 보세요!
+          </div>
+        `;
+        return;
+      }
+
+      let containerHTML = '';
+      state.subjects.forEach(s => {
+        const dDay = calculateDDay(s.examDate);
+        
+        let dDayScore = 0;
+        if (dDay === 0) dDayScore = 100;
+        else if (dDay > 0) dDayScore = Math.round(100 * Math.exp(-0.07 * dDay));
+
+        let importanceScore = 30;
+        if (s.importance === '상') importanceScore = 100;
+        else if (s.importance === '중') importanceScore = 60;
+
+        const hoursScore = Math.min(100, (s.expectedHours / 20) * 100);
+        const incompleteScore = 100 - s.progress;
+
+        const priorityScore = Math.round((dDayScore * 0.4) + (importanceScore * 0.3) + (hoursScore * 0.2) + (incompleteScore * 0.1));
+
+        let badgeClass = 'tag-success';
+        if (s.importance === '상') badgeClass = 'tag-danger';
+        else if (s.importance === '중') badgeClass = 'tag-warning';
+
+        let dDayText = dDay > 0 ? `D-${dDay}` : (dDay === 0 ? 'D-Day' : '종료');
+        let dDayBadgeClass = dDay <= 2 && dDay >= 0 ? 'tag-danger' : 'tag-success';
+        if (dDay < 0) dDayBadgeClass = 'tag-success';
+
+        containerHTML += `
+          <div class="subject-card">
+            <div class="subject-card-top">
+              <div class="subject-info">
+                <h3>${s.name}</h3>
+                <div class="subject-meta">
+                  <span class="badge ${dDayBadgeClass}">${dDayText} (${s.examDate})</span>
+                  <span class="badge ${badgeClass}">중요도: ${s.importance}</span>
+                  <span class="badge priority-badge tooltip">
+                    우선순위: ${priorityScore}점
+                    <span class="tooltip-text">
+                      <strong>우선순위 산출 근거:</strong><br>
+                      - 시험임박도(40%): ${Math.round(dDayScore * 0.4)}점<br>
+                      - 중요도(30%): ${Math.round(importanceScore * 0.3)}점<br>
+                      - 공부량(20%): ${Math.round(hoursScore * 0.2)}점<br>
+                      - 미진도율(10%): ${Math.round(incompleteScore * 0.1)}점
+                    </span>
+                  </span>
+                </div>
+              </div>
+              <button class="btn btn-danger btn-icon" onclick="deleteSubject('${s.id}')" aria-label="삭제">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+              </button>
+            </div>
+
+            <div class="subject-progress-area">
+              <div class="progress-bar-container">
+                <div class="progress-bar-fill" style="width: ${s.progress}%"></div>
+              </div>
+              <div class="progress-label">
+                <span>진도율</span>
+                <span>${s.progress}% (목표 공부시간: ${s.expectedHours}시간)</span>
+              </div>
+              
+              <div class="subject-slider-group">
+                <input type="range" class="progress-slider" min="0" max="100" value="${s.progress}" 
+                  oninput="updateSubjectProgressDirectly('${s.id}', this.value)" 
+                  onchange="saveStateAndRefresh()">
+              </div>
+            </div>
+          </div>
+        `;
+      });
+      container.innerHTML = containerHTML;
+    }
+
+    // Add subject handler
+    function addSubject() {
+      const nameInput = document.getElementById('sub-name');
+      const dateInput = document.getElementById('sub-date');
+      const hoursInput = document.getElementById('sub-hours');
+      const progressInput = document.getElementById('sub-progress');
+      
+      const name = nameInput.value.trim();
+      const date = dateInput.value;
+      const hours = parseInt(hoursInput.value);
+      const progress = parseInt(progressInput.value);
+      
+      let importance = '상';
+      const checkedImportance = document.querySelector('input[name="sub-importance"]:checked');
+      if (checkedImportance) {
+        importance = checkedImportance.value;
+      }
+
+      if (!name || !date || isNaN(hours)) {
+        showToast("모든 값을 바르게 채워주세요!");
+        return;
+      }
+
+      const newSubject = {
+        id: `subject-${Date.now()}`,
+        name,
+        examDate: date,
+        importance,
+        expectedHours: hours,
+        progress
+      };
+
+      state.subjects.push(newSubject);
+      saveState();
+      
+      closeModal();
+      nameInput.value = '';
+      dateInput.value = '';
+      hoursInput.value = '10';
+      progressInput.value = '0';
+      document.getElementById('new-progress-val').innerText = '0%';
+      document.getElementById('imp-high').checked = true;
+
+      refreshApp();
+      showToast(`과목 "${name}"(이)가 등록되었습니다!`);
+    }
+
+    function deleteSubject(id) {
+      const subject = state.subjects.find(s => s.id === id);
+      if (confirm(`과목 "${subject.name}"을(를) 삭제하시겠습니까?`)) {
+        state.subjects = state.subjects.filter(s => s.id !== id);
+        state.todaySchedule = state.todaySchedule.filter(block => block.subjectId !== id);
+        saveState();
+        refreshApp();
+        showToast("과목이 삭제되었습니다.");
+      }
+    }
+
+    function updateSubjectProgressDirectly(id, val) {
+      const sub = state.subjects.find(s => s.id === id);
+      if (sub) {
+        sub.progress = parseInt(val);
+      }
+      renderDashboard();
+      const card = document.querySelector(`[onclick="deleteSubject('${id}')"]`).closest('.subject-card');
+      card.querySelector('.progress-bar-fill').style.width = `${val}%`;
+      card.querySelector('.progress-label span:last-child').innerText = `${val}% (목표 공부시간: ${sub.expectedHours}시간)`;
+    }
+
+    function saveStateAndRefresh() {
+      saveState();
+      renderDashboard();
+    }
+
+    // Time conversion helper
+    function minutesToTimeString(minutes) {
+      const hours = Math.floor(minutes / 60) % 24;
+      const mins = minutes % 60;
+      const padHours = String(hours).padStart(2, '0');
+      const padMins = String(mins).padStart(2, '0');
+      return `${padHours}:${padMins}`;
+    }
+
+    // Dynamic schedule generation
+    function generateAISchedule() {
+      const activeSubjects = state.subjects.filter(s => {
+        const dDay = calculateDDay(s.examDate);
+        return dDay >= 0 && s.progress < 100;
+      });
+
+      if (activeSubjects.length === 0) {
+        state.todaySchedule = [];
+        saveState();
+        renderSchedule();
+        showToast("진행 예정이거나 공부할 과목이 없습니다.");
+        return;
+      }
+
+      // 1. Calculate Priority Scores
+      const subjectsWithPriority = activeSubjects.map(s => {
+        const dDay = calculateDDay(s.examDate);
+        
+        let dDayScore = 0;
+        if (dDay === 0) dDayScore = 100;
+        else if (dDay > 0) dDayScore = Math.round(100 * Math.exp(-0.07 * dDay));
+
+        let importanceScore = 30;
+        if (s.importance === '상') importanceScore = 100;
+        else if (s.importance === '중') importanceScore = 60;
+
+        const hoursScore = Math.min(100, (s.expectedHours / 20) * 100);
+        const incompleteScore = 100 - s.progress;
+
+        const priorityScore = (dDayScore * 0.4) + (importanceScore * 0.3) + (hoursScore * 0.2) + (incompleteScore * 0.1);
+
+        return { ...s, priorityScore, dDay };
+      });
+
+      subjectsWithPriority.sort((a, b) => b.priorityScore - a.priorityScore);
+
+      // 2. Allocate study time in 30-min increments
+      const totalAvailableMins = state.dailyTime * 60;
+      const totalPriority = subjectsWithPriority.reduce((sum, s) => sum + s.priorityScore, 0);
+
+      let allocatedMins = [];
+      let sumAllocated = 0;
+
+      subjectsWithPriority.forEach((s) => {
+        let rawMins = totalAvailableMins * (s.priorityScore / totalPriority);
+        let roundedMins = Math.round(rawMins / 30) * 30;
+        allocatedMins.push({
+          subject: s,
+          minutes: roundedMins
+        });
+        sumAllocated += roundedMins;
+      });
+
+      let diff = totalAvailableMins - sumAllocated;
+      if (diff !== 0) {
+        const steps = Math.abs(diff) / 30;
+        const direction = diff > 0 ? 1 : -1;
+        for (let i = 0; i < steps; i++) {
+          let idx = i % allocatedMins.length;
+          allocatedMins[idx].minutes += direction * 30;
+          if (allocatedMins[idx].minutes < 0) {
+            allocatedMins[idx].minutes = 0;
+          }
+        }
+      }
+
+      const studyTasks = allocatedMins.filter(t => t.minutes > 0);
+
+      if (studyTasks.length === 0) {
+        state.todaySchedule = [];
+        saveState();
+        renderSchedule();
+        showToast("공부 시간이 너무 적게 설정되었습니다.");
+        return;
+      }
+
+      // 3. Sequential Timeline Scheduling Loop
+      const schedule = [];
+      const startParts = state.startTime.split(':');
+      let currentMins = parseInt(startParts[0]) * 60 + parseInt(startParts[1]);
+
+      let lunchScheduled = false;
+      let dinnerScheduled = false;
+
+      const LUNCH_START = 12 * 60; // 12:00
+      const LUNCH_END = 13 * 60;   // 13:00
+      const DINNER_START = 18 * 60; // 18:00
+      const DINNER_END = 19 * 60;   // 19:00
+
+      studyTasks.forEach((task, taskIdx) => {
+        let remainingMins = task.minutes;
+        const subjectName = task.subject.name;
+        const subjectId = task.subject.id;
+
+        while (remainingMins > 0) {
+          if (state.excludeMeals === 'both' || state.excludeMeals === 'lunch') {
+            if (!lunchScheduled && currentMins >= LUNCH_START && currentMins < LUNCH_END) {
+              schedule.push({
+                id: `lunch-${currentMins}`,
+                type: 'meal',
+                subject: '점심 식사 시간 🍔',
+                startMins: currentMins,
+                endMins: LUNCH_END,
+                completed: true
+              });
+              currentMins = LUNCH_END;
+              lunchScheduled = true;
+              continue;
+            }
+            if (!lunchScheduled && currentMins < LUNCH_START && currentMins + Math.min(50, remainingMins) > LUNCH_START) {
+              let studyDuration = LUNCH_START - currentMins;
+              schedule.push({
+                id: `study-${subjectId}-${currentMins}`,
+                subjectId: subjectId,
+                type: 'study',
+                subject: subjectName,
+                startMins: currentMins,
+                endMins: LUNCH_START,
+                completed: false
+              });
+              currentMins = LUNCH_START;
+              remainingMins -= studyDuration;
+              continue;
+            }
+          }
+
+          if (state.excludeMeals === 'both' || state.excludeMeals === 'dinner') {
+            if (!dinnerScheduled && currentMins >= DINNER_START && currentMins < DINNER_END) {
+              schedule.push({
+                id: `dinner-${currentMins}`,
+                type: 'meal',
+                subject: '저녁 식사 시간 🍕',
+                startMins: currentMins,
+                endMins: DINNER_END,
+                completed: true
+              });
+              currentMins = DINNER_END;
+              dinnerScheduled = true;
+              continue;
+            }
+            if (!dinnerScheduled && currentMins < DINNER_START && currentMins + Math.min(50, remainingMins) > DINNER_START) {
+              let studyDuration = DINNER_START - currentMins;
+              schedule.push({
+                id: `study-${subjectId}-${currentMins}`,
+                subjectId: subjectId,
+                type: 'study',
+                subject: subjectName,
+                startMins: currentMins,
+                endMins: DINNER_START,
+                completed: false
+              });
+              currentMins = DINNER_START;
+              remainingMins -= studyDuration;
+              continue;
+            }
+          }
+
+          let blockDuration = state.includeBreaks ? Math.min(50, remainingMins) : remainingMins;
+          schedule.push({
+            id: `study-${subjectId}-${currentMins}`,
+            subjectId: subjectId,
+            type: 'study',
+            subject: subjectName,
+            startMins: currentMins,
+            endMins: currentMins + blockDuration,
+            completed: false
+          });
+          currentMins += blockDuration;
+          remainingMins -= blockDuration;
+
+          if (state.includeBreaks && remainingMins > 0) {
+            let breakDuration = 10;
+            if (state.excludeMeals === 'both' || state.excludeMeals === 'lunch') {
+              if (!lunchScheduled && currentMins < LUNCH_START && currentMins + 10 > LUNCH_START) {
+                breakDuration = LUNCH_START - currentMins;
+              }
+            }
+            if (state.excludeMeals === 'both' || state.excludeMeals === 'dinner') {
+              if (!dinnerScheduled && currentMins < DINNER_START && currentMins + 10 > DINNER_START) {
+                breakDuration = DINNER_START - currentMins;
+              }
+            }
+            
+            if (breakDuration > 0) {
+              schedule.push({
+                id: `break-${currentMins}`,
+                type: 'break',
+                subject: '쉬는 시간 ☕',
+                startMins: currentMins,
+                endMins: currentMins + breakDuration,
+                completed: true
+              });
+              currentMins += breakDuration;
+            }
+          }
+        }
+
+        if (state.includeBreaks && taskIdx < studyTasks.length - 1) {
+          let nextMealComing = false;
+          if (state.excludeMeals === 'both' || state.excludeMeals === 'lunch') {
+            if (!lunchScheduled && currentMins === LUNCH_START) nextMealComing = true;
+          }
+          if (state.excludeMeals === 'both' || state.excludeMeals === 'dinner') {
+            if (!dinnerScheduled && currentMins === DINNER_START) nextMealComing = true;
+          }
+          
+          if (!nextMealComing) {
+            schedule.push({
+              id: `break-transition-${currentMins}`,
+              type: 'break',
+              subject: '과목 전환 휴식 🏃',
+              startMins: currentMins,
+              endMins: currentMins + 10,
+              completed: true
+            });
+            currentMins += 10;
+          }
+        }
+      });
+
+      state.todaySchedule = schedule;
+      saveState();
+      renderSchedule();
+      showToast("새로운 AI 맞춤 공부 계획이 생성되었습니다!");
+    }
+
+    // Render Timeline schedule
+    function renderSchedule() {
+      const container = document.getElementById('schedule-container');
+      const percentageText = document.getElementById('schedule-percentage-text');
+      
+      if (!state.todaySchedule || state.todaySchedule.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            오늘 생성된 스케줄이 없습니다. 위의 설정을 맞추고 "AI 맞춤 공부 계획 생성" 버튼을 눌러주세요.
+          </div>
+        `;
+        percentageText.innerText = "완료율 0%";
+        return;
+      }
+
+      const studyBlocks = state.todaySchedule.filter(b => b.type === 'study');
+      const completedBlocks = studyBlocks.filter(b => b.completed);
+      const completionPercent = studyBlocks.length > 0 ? Math.round((completedBlocks.length / studyBlocks.length) * 100) : 0;
+      
+      percentageText.innerText = `완료율 ${completionPercent}% (${completedBlocks.length}/${studyBlocks.length} 완료)`;
+
+      let timelineHTML = '<div class="timeline">';
+      
+      state.todaySchedule.forEach(block => {
+        const timeStr = `${minutesToTimeString(block.startMins)} ~ ${minutesToTimeString(block.endMins)}`;
+        const cardClass = block.completed ? 'timeline-card completed' : 'timeline-card';
+        const itemClass = `timeline-item ${block.type} ${block.completed ? 'completed' : ''}`;
+        
+        let typeBadgeHTML = '';
+        if (block.type === 'study') {
+          typeBadgeHTML = `<span class="timeline-type-badge timeline-type-study">공부</span>`;
+        } else if (block.type === 'break') {
+          typeBadgeHTML = `<span class="timeline-type-badge timeline-type-break">휴식</span>`;
+        } else if (block.type === 'meal') {
+          typeBadgeHTML = `<span class="timeline-type-badge timeline-type-meal">식사</span>`;
+        }
+
+        let actionHTML = '';
+        if (block.type === 'study') {
+          actionHTML = `
+            <button class="schedule-check-btn ${block.completed ? 'checked' : ''}" 
+              onclick="toggleScheduleBlock('${block.id}')" aria-label="완료 체크">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </button>
+          `;
+        } else {
+          actionHTML = `
+            <span style="color: var(--accent-green); display: flex; align-items: center;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+            </span>
+          `;
+        }
+
+        timelineHTML += `
+          <div class="${itemClass}">
+            <div class="${cardClass}">
+              <div class="timeline-info">
+                <span class="timeline-time">${timeStr}</span>
+                <span class="timeline-subject">
+                  ${block.subject}
+                  ${typeBadgeHTML}
+                </span>
+              </div>
+              <div>
+                ${actionHTML}
+              </div>
+            </div>
+          </div>
+        `;
+      });
+
+      timelineHTML += '</div>';
+      container.innerHTML = timelineHTML;
+    }
+
+    // Toggle Study Block Checklist item
+    function toggleScheduleBlock(id) {
+      const block = state.todaySchedule.find(b => b.id === id);
+      if (!block || block.type !== 'study') return;
+
+      block.completed = !block.completed;
+
+      const subject = state.subjects.find(s => s.id === block.subjectId);
+      if (subject) {
+        const blockDurationHours = (block.endMins - block.startMins) / 60;
+        const deltaProgress = (blockDurationHours / subject.expectedHours) * 100;
+        
+        if (block.completed) {
+          subject.progress = Math.min(100, Math.round(subject.progress + deltaProgress));
+        } else {
+          subject.progress = Math.max(0, Math.round(subject.progress - deltaProgress));
+        }
+      }
+
+      saveState();
+      renderSchedule();
+      renderSubjects();
+      renderDashboard();
+
+      const studyBlocks = state.todaySchedule.filter(b => b.type === 'study');
+      const allDone = studyBlocks.every(b => b.completed);
+      
+      if (allDone && block.completed) {
+        triggerConfettiEffect();
+        showToast("축하합니다! 오늘의 공부 계획을 모두 완료하셨습니다! 🎉");
+      } else if (block.completed) {
+        showToast(`"${block.subject}" 공부 완료! 수고하셨습니다.`);
+      }
+    }
+
+    function triggerConfettiEffect() {
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 }
+      });
+      setTimeout(() => {
+        confetti({
+          particleCount: 50,
+          angle: 60,
+          spread: 55,
+          origin: { x: 0 }
+        });
+        confetti({
+          particleCount: 50,
+          angle: 120,
+          spread: 55,
+          origin: { x: 1 }
+        });
+      }, 250);
+    }
+
+    const modal = document.getElementById('add-modal');
+    
+    function openModal() {
+      modal.classList.add('open');
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      document.getElementById('sub-date').value = tomorrow.toISOString().split('T')[0];
+    }
+
+    function closeModal() {
+      modal.classList.remove('open');
+    }
+
+    document.getElementById('open-add-modal-btn').addEventListener('click', openModal);
+    document.getElementById('close-add-modal-btn').addEventListener('click', closeModal);
+    document.getElementById('cancel-add-btn').addEventListener('click', closeModal);
+    
+    document.getElementById('add-subject-form').addEventListener('submit', addSubject);
+
+    const timeInput = document.getElementById('daily-study-time-input');
+    timeInput.addEventListener('input', (e) => {
+      document.getElementById('study-time-val').innerText = `${e.target.value}시간`;
+      state.dailyTime = parseInt(e.target.value);
+      saveState();
+    });
+
+    document.getElementById('start-time-input').addEventListener('change', (e) => {
+      state.startTime = e.target.value;
+      saveState();
+    });
+
+    document.getElementById('meal-exclusion-select').addEventListener('change', (e) => {
+      state.excludeMeals = e.target.value;
+      saveState();
+    });
+
+    document.getElementById('break-toggle-input').addEventListener('change', (e) => {
+      state.includeBreaks = e.target.checked;
+      saveState();
+    });
+
+    document.getElementById('generate-plan-btn').addEventListener('click', generateAISchedule);
+
+    document.getElementById('sub-progress').addEventListener('input', (e) => {
+      document.getElementById('new-progress-val').innerText = `${e.target.value}%`;
+    });
+
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      state.theme = newTheme;
+      saveState();
+      updateThemeToggleUI();
+    });
+
+    function refreshApp() {
+      renderDashboard();
+      renderSubjects();
+      renderSchedule();
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const today = new Date();
+      const options = { year: 'numeric', month: '2-digit', day: '2-digit', weekday: 'short' };
+      document.getElementById('header-date').innerText = today.toLocaleDateString('ko-KR', options);
+
+      loadState();
+      refreshApp();
+    });
+  </script>
+</body>
+</html>
